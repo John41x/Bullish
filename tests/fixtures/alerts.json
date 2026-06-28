@@ -1,0 +1,14 @@
+[
+  {"text": "BTO SPY 450C 10/18 @ 2.50", "expect": "parse"},
+  {"text": "BTO SPY 450 C 10/18 @ 2.50", "expect": "parse"},
+  {"text": "#options-alerts BTO QQQ 380P 11/15 @ 1.25 x 2", "expect": "parse"},
+  {"text": "Discord: trader-vip BTO AAPL 220C 12/20 @ 3.10", "expect": "parse"},
+  {"text": "STC SPY 450C 10/18 @ 3.00", "expect": "parse"},
+  {"text": "BTC NVDA 140P 10/25 @ 0.85", "expect": "parse"},
+  {"text": "STO TSLA 300C 11/01 @ 4.50", "expect": "parse"},
+  {"text": "BTO SPY 450C 10/18/25 @ 2.50", "expect": "parse"},
+  {"text": "BTO SPY 450C 10/18", "expect": "parse"},
+  {"text": "Just chatting about markets today", "expect": "fail"},
+  {"text": "BTO SPY 450C 10/18 @ 2.50", "expect": "parse"},
+  {"text": "BTO SPY 450C 10/18 @ 2.50", "expect": "parse"}
+]

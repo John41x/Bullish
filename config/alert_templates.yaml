@@ -1,0 +1,46 @@
+# Regex templates for VIP alert formats.
+# Named groups: action, symbol, strike, right, expiry, price, quantity
+# right: C or P (call/put)
+# expiry: MM/DD or MM/DD/YY or YYYY-MM-DD
+# action: BTO, STO, BTC, STC (buy/sell to open/close)
+
+templates:
+  - name: discord_notification
+    description: "Discord toast often prefixes channel name"
+    pattern: >-
+      (?i)(?:discord|[#][^\s]+).*?(?P<action>BTO|STO|BTC|STC)\s+
+      (?P<symbol>[A-Z]{1,5})\s+
+      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+
+      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
+      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
+      (?:\s+x\s*(?P<quantity>\d+))?
+
+  - name: standard_bto
+    description: "BTO SPY 450C 10/18 @ 2.50"
+    pattern: >-
+      (?i)(?P<action>BTO|STO|BTC|STC)\s+
+      (?P<symbol>[A-Z]{1,5})\s+
+      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+
+      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
+      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
+      (?:\s+x\s*(?P<quantity>\d+))?
+
+  - name: spaced_alert
+    description: "BTO SPY 450 C 10/18 @ 2.50"
+    pattern: >-
+      (?i)(?P<action>BTO|STO|BTC|STC)\s+
+      (?P<symbol>[A-Z]{1,5})\s+
+      (?P<strike>\d+(?:\.\d+)?)\s+(?P<right>[CP])\s+
+      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
+      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
+      (?:\s+x\s*(?P<quantity>\d+))?
+
+
+  - name: exit_only
+    description: "STC SPY 450C 10/18"
+    pattern: >-
+      (?i)(?P<action>STC|BTC)\s+
+      (?P<symbol>[A-Z]{1,5})\s+
+      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+
+      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
+      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?

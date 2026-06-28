@@ -1,0 +1,46 @@
+broker:
+  name: tradier
+  base_url: https://sandbox.tradier.com/v1
+  # Set TRADIER_API_KEY and TRADIER_ACCOUNT_ID in .env
+
+risk:
+  max_slippage_pct: 3.0
+  max_contracts_per_trade: 5
+  max_contracts_per_day: 20
+  max_notional_usd: 5000
+  duplicate_suppression_seconds: 30
+  trading_hours:
+    start: "09:30"
+    end: "16:00"
+    timezone: America/New_York
+  require_limit_orders: true
+
+parser:
+  templates_file: config/alert_templates.yaml
+  default_quantity: 1
+
+kill_switch:
+  enabled: true
+  flatten_on_halt: true
+
+reliability:
+  heartbeat_interval_seconds: 300
+  reconciliation_interval_seconds: 60
+  watchdog_restart_delay_seconds: 5
+
+alert_bridge:
+  host: "0.0.0.0"
+  port: 8765
+
+logging:
+  log_dir: logs
+  json_logs: true
+
+slippage_journal:
+  enabled: true
+  journal_path: logs/slippage_journal.jsonl
+
+live_pilot:
+  enabled: false
+  max_contracts: 1
+  min_pilot_weeks: 2

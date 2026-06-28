@@ -1,0 +1,20 @@
+# Live pilot configuration overlay
+# Copy to config/settings.yaml and set live_pilot.enabled: true when ready.
+#
+# Before enabling:
+# 1. Set TRADIER_BASE_URL=https://api.tradier.com/v1 in .env
+# 2. Fund Tradier account and enable options approval
+# 3. Complete kill switch and slippage guard testing in sandbox
+# 4. Run minimum 1 contract for 2-4 weeks
+
+live_pilot:
+  enabled: false
+  max_contracts: 1
+  min_pilot_weeks: 2
+
+broker:
+  base_url: https://api.tradier.com/v1
+
+slippage_journal:
+  enabled: true
+  journal_path: logs/slippage_journal.jsonl
