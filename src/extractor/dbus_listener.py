@@ -64,49 +64,51 @@ async def monitor_dbus(*, forward_url: str, secret: str, verbose: bool = False) 
     seen: dict[str, float] = {}
     dedup_ttl = 30.0
 
-    def _make_handler():
-        async def handler(message) -> None:
-            if message.message_type != MessageType.METHOD_CALL:
-                return
-            if message.interface != "org.freedesktop.Notifications":
-                return
-            if message.member != "Notify":
-                return
-            if len(message.body) < 4:
-                return
+    loop = asyncio.get_running_loop()
 
-            app_name = str(message.body[0] or "")
-            summary = str(message.body[2] or "")
-            body = str(message.body[3] or "")
-            text = f"{summary} {body}".strip()
+    async def _handle_notify(message) -> None:
+        if message.message_type != MessageType.METHOD_CALL:
+            return
+        if message.interface != "org.freedesktop.Notifications":
+            return
+        if message.member != "Notify":
+            return
+        if len(message.body) < 4:
+            return
 
-            if verbose:
-                logger.info(
-                    "dbus_notify_seen",
-                    app=app_name,
-                    summary=summary[:80],
-                    body=body[:80],
-                )
+        app_name = str(message.body[0] or "")
+        summary = str(message.body[2] or "")
+        body = str(message.body[3] or "")
+        text = f"{summary} {body}".strip()
 
-            if not text or not _is_target_app(app_name):
-                if verbose and text:
-                    logger.info("dbus_notify_ignored", app=app_name, reason="not_target_app")
-                return
+        if verbose:
+            logger.info(
+                "dbus_notify_seen",
+                app=app_name,
+                summary=summary[:80],
+                body=body[:80],
+            )
 
-            now = time.monotonic()
-            key = f"{app_name}:{text.lower()}"
-            if key in seen and now - seen[key] < dedup_ttl:
-                return
-            seen[key] = now
+        if not text or not _is_target_app(app_name):
+            if verbose and text:
+                logger.info("dbus_notify_ignored", app=app_name, reason="not_target_app")
+            return
 
-            try:
-                await _forward(forward_url, secret, text, app_name, summary)
-            except Exception as exc:
-                logger.error("forward_failed", error=str(exc))
+        now = time.monotonic()
+        key = f"{app_name}:{text.lower()}"
+        if key in seen and now - seen[key] < dedup_ttl:
+            return
+        seen[key] = now
 
-        return handler
+        try:
+            await _forward(forward_url, secret, text, app_name, summary)
+        except Exception as exc:
+            logger.error("forward_failed", error=str(exc))
 
-    bus.add_message_handler(_make_handler())
+    def _on_message(message) -> None:
+        loop.create_task(_handle_notify(message))
+
+    bus.add_message_handler(_on_message)
     logger.info("dbus_listener_started", forward_url=forward_url, match=NOTIFY_MATCH)
     await asyncio.Future()
 
