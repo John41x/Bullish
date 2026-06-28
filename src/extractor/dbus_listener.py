@@ -24,8 +24,23 @@ DISCORD_APP_NAMES = {"discord", "discord-canary", "discord-ptb", "discord-develo
 BROWSER_APP_NAMES = {"firefox", "google-chrome", "chromium", "chromium-browser", "brave-browser"}
 
 NOTIFY_MATCH = (
-    "type='method_call',interface='org.freedesktop.Notifications',member='Notify'"
+    "type='method_call',eavesdrop=true,"
+    "interface='org.freedesktop.Notifications',member='Notify'"
 )
+
+
+async def _add_match(bus, rule: str) -> None:
+    from dbus_next import Message
+
+    msg = Message(
+        destination="org.freedesktop.DBus",
+        path="/org/freedesktop/DBus",
+        interface="org.freedesktop.DBus",
+        member="AddMatch",
+        signature="s",
+        body=[rule],
+    )
+    await bus.call(msg)
 
 
 def _is_target_app(app_name: str) -> bool:
@@ -44,13 +59,7 @@ async def monitor_dbus(*, forward_url: str, secret: str) -> None:
         raise SystemExit(1) from exc
 
     bus = await MessageBus(bus_type=BusType.SESSION).connect()
-    await bus.call(
-        "org.freedesktop.DBus",
-        "/org/freedesktop/DBus",
-        "org.freedesktop.DBus",
-        "AddMatch",
-        NOTIFY_MATCH,
-    )
+    await _add_match(bus, NOTIFY_MATCH)
 
     seen: dict[str, float] = {}
     dedup_ttl = 30.0
