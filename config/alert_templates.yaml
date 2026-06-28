@@ -5,6 +5,15 @@
 # action: BTO, STO, BTC, STC (buy/sell to open/close)
 
 templates:
+  - name: vip_added_alert
+    description: "#alert I added $spy 733p @ 0.79 (0DTE when no expiry)"
+    default_action: BTO
+    infer_expiry: today
+    pattern: >-
+      (?i)(?:[#]alert\b|alert\b).*?I added\s+\$?(?P<symbol>[A-Z]{1,5})\s+
+      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CPcp])\s+@\s*
+      (?P<price>\d+(?:\.\d+)?)
+
   - name: discord_notification
     description: "Discord toast often prefixes channel name"
     pattern: >-

@@ -1,5 +1,7 @@
 [
   {"text": "BTO SPY 450C 10/18 @ 2.50", "expect": "parse"},
+  {"text": "#alert I added $spy 733p @ 0.79", "expect": "parse"},
+  {"text": "Discord: #alert I added $SPY 733P @ 0.79", "expect": "parse"},
   {"text": "BTO SPY 450 C 10/18 @ 2.50", "expect": "parse"},
   {"text": "#options-alerts BTO QQQ 380P 11/15 @ 1.25 x 2", "expect": "parse"},
   {"text": "Discord: trader-vip BTO AAPL 220C 12/20 @ 3.10", "expect": "parse"},

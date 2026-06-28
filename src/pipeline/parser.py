@@ -23,27 +23,42 @@ class AlertParser:
         path = templates_path or (ROOT / settings.parser.templates_file)
         with path.open(encoding="utf-8") as handle:
             data = yaml.safe_load(handle) or {}
-        self.templates: list[tuple[str, re.Pattern[str]]] = []
+        self.templates: list[tuple[str, re.Pattern[str], dict]] = []
         for item in data.get("templates", []):
             name = item["name"]
             pattern = re.compile(item["pattern"], re.VERBOSE)
-            self.templates.append((name, pattern))
+            meta = {
+                "default_action": item.get("default_action"),
+                "infer_expiry": item.get("infer_expiry"),
+            }
+            self.templates.append((name, pattern, meta))
         self.default_quantity = settings.parser.default_quantity
 
     def parse(self, text: str) -> TradeIntent:
         cleaned = " ".join(text.split())
-        for name, pattern in self.templates:
+        for name, pattern, meta in self.templates:
             match = pattern.search(cleaned)
             if not match:
                 continue
             groups = match.groupdict()
             try:
+                action_raw = groups.get("action") or meta.get("default_action")
+                if not action_raw:
+                    raise KeyError("action")
+                expiry_raw = groups.get("expiry")
+                if expiry_raw:
+                    expiry = _parse_expiry(expiry_raw)
+                elif meta.get("infer_expiry") == "today":
+                    expiry = datetime.now().date()
+                else:
+                    raise KeyError("expiry")
+                right = groups["right"].upper()[0]
                 return TradeIntent(
-                    action=OrderAction(groups["action"].upper()),
+                    action=OrderAction(action_raw.upper()),
                     symbol=groups["symbol"],
                     strike=float(groups["strike"]),
-                    right=OptionRight(groups["right"].upper()),
-                    expiry=_parse_expiry(groups["expiry"]),
+                    right=OptionRight(right),
+                    expiry=expiry,
                     limit_price=float(groups["price"]) if groups.get("price") else None,
                     quantity=int(groups["quantity"]) if groups.get("quantity") else self.default_quantity,
                     raw_text=text,
