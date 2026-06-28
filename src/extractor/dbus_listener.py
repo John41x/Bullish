@@ -50,7 +50,7 @@ def _is_target_app(app_name: str) -> bool:
     return normalized in BROWSER_APP_NAMES
 
 
-async def monitor_dbus(*, forward_url: str, secret: str) -> None:
+async def monitor_dbus(*, forward_url: str, secret: str, verbose: bool = False) -> None:
     try:
         from dbus_next.aio import MessageBus
         from dbus_next.constants import BusType, MessageType
@@ -79,7 +79,18 @@ async def monitor_dbus(*, forward_url: str, secret: str) -> None:
             summary = str(message.body[2] or "")
             body = str(message.body[3] or "")
             text = f"{summary} {body}".strip()
+
+            if verbose:
+                logger.info(
+                    "dbus_notify_seen",
+                    app=app_name,
+                    summary=summary[:80],
+                    body=body[:80],
+                )
+
             if not text or not _is_target_app(app_name):
+                if verbose and text:
+                    logger.info("dbus_notify_ignored", app=app_name, reason="not_target_app")
                 return
 
             now = time.monotonic()
@@ -119,9 +130,20 @@ def main() -> None:
         help="Mac executor URL, e.g. http://192.168.64.1:8765/alert",
     )
     parser.add_argument("--secret", default="", help="Must match ALERT_BRIDGE_SECRET in Mac .env")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Log every Notify call before filtering (debug)",
+    )
     args = parser.parse_args()
     setup_logging()
-    asyncio.run(monitor_dbus(forward_url=args.forward_url, secret=args.secret))
+    asyncio.run(
+        monitor_dbus(
+            forward_url=args.forward_url,
+            secret=args.secret,
+            verbose=args.verbose,
+        )
+    )
 
 
 if __name__ == "__main__":
