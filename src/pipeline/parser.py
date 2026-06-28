@@ -26,7 +26,9 @@ class AlertParser:
         self.templates: list[tuple[str, re.Pattern[str], dict]] = []
         for item in data.get("templates", []):
             name = item["name"]
-            pattern = re.compile(item["pattern"], re.VERBOSE)
+            # YAML folded strings may insert newlines; remove them only (keep intentional spaces).
+            pattern_str = item["pattern"].replace("\n", "")
+            pattern = re.compile(pattern_str)
             meta = {
                 "default_action": item.get("default_action"),
                 "infer_expiry": item.get("infer_expiry"),

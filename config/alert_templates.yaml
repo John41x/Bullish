@@ -1,55 +1,25 @@
 # Regex templates for VIP alert formats.
 # Named groups: action, symbol, strike, right, expiry, price, quantity
-# right: C or P (call/put)
-# expiry: MM/DD or MM/DD/YY or YYYY-MM-DD
-# action: BTO, STO, BTC, STC (buy/sell to open/close)
 
 templates:
   - name: vip_added_alert
-    description: "#alert I added $spy 733p @ 0.79 (0DTE when no expiry)"
+    description: "#alert I added $spy 733p @ 0.79 (0DTE when no expiry in text)"
     default_action: BTO
     infer_expiry: today
-    pattern: >-
-      (?i)(?:[#]alert\b|alert\b).*?I added\s+\$?(?P<symbol>[A-Z]{1,5})\s+
-      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CPcp])\s+@\s*
-      (?P<price>\d+(?:\.\d+)?)
+    pattern: '(?i)(?:[#]alert\b|alert\b).*?I added\s+\$?(?P<symbol>[A-Z]{1,5})\s+(?P<strike>\d+(?:\.\d+)?)(?P<right>[CPcp])\s+@\s*(?P<price>\d+(?:\.\d+)?)'
 
   - name: discord_notification
-    description: "Discord toast often prefixes channel name"
-    pattern: >-
-      (?i)(?:discord|[#][^\s]+).*?(?P<action>BTO|STO|BTC|STC)\s+
-      (?P<symbol>[A-Z]{1,5})\s+
-      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+
-      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
-      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
-      (?:\s+x\s*(?P<quantity>\d+))?
+    description: "Discord toast with BTO SPY 450C 10/18 @ 2.50"
+    pattern: '(?i)(?:discord|[#][^\s]+).*?(?P<action>BTO|STO|BTC|STC)\s+(?P<symbol>[A-Z]{1,5})\s+(?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+(?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)(?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?(?:\s+x\s*(?P<quantity>\d+))?'
 
   - name: standard_bto
     description: "BTO SPY 450C 10/18 @ 2.50"
-    pattern: >-
-      (?i)(?P<action>BTO|STO|BTC|STC)\s+
-      (?P<symbol>[A-Z]{1,5})\s+
-      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+
-      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
-      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
-      (?:\s+x\s*(?P<quantity>\d+))?
+    pattern: '(?i)(?P<action>BTO|STO|BTC|STC)\s+(?P<symbol>[A-Z]{1,5})\s+(?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+(?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)(?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?(?:\s+x\s*(?P<quantity>\d+))?'
 
   - name: spaced_alert
     description: "BTO SPY 450 C 10/18 @ 2.50"
-    pattern: >-
-      (?i)(?P<action>BTO|STO|BTC|STC)\s+
-      (?P<symbol>[A-Z]{1,5})\s+
-      (?P<strike>\d+(?:\.\d+)?)\s+(?P<right>[CP])\s+
-      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
-      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
-      (?:\s+x\s*(?P<quantity>\d+))?
-
+    pattern: '(?i)(?P<action>BTO|STO|BTC|STC)\s+(?P<symbol>[A-Z]{1,5})\s+(?P<strike>\d+(?:\.\d+)?)\s+(?P<right>[CP])\s+(?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)(?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?(?:\s+x\s*(?P<quantity>\d+))?'
 
   - name: exit_only
     description: "STC SPY 450C 10/18"
-    pattern: >-
-      (?i)(?P<action>STC|BTC)\s+
-      (?P<symbol>[A-Z]{1,5})\s+
-      (?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+
-      (?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)
-      (?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?
+    pattern: '(?i)(?P<action>STC|BTC)\s+(?P<symbol>[A-Z]{1,5})\s+(?P<strike>\d+(?:\.\d+)?)(?P<right>[CP])\s+(?P<expiry>\d{1,2}/\d{1,2}(?:/\d{2,4})?)(?:\s+@?\s*(?P<price>\d+(?:\.\d+)?))?'
